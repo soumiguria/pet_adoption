@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "name": "Bella",
+    "type": "Dog",
+    "age": 2,
+    "price": 120.0,
+    "imageUrl": "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg"
+  },
+  {
+    "id": "2",
+    "name": "Max",
+    "type": "Dog",
+    "age": 3,
+    "price": 100.0,
+    "imageUrl": "https://images.pexels.com/photos/4587997/pexels-photo-4587997.jpeg"
+  },
+  {
+    "id": "3",
+    "name": "Luna",
+    "type": "Cat",
+    "age": 1,
+    "price": 80.0,
+    "imageUrl": "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg"
+  },
+  {
+    "id": "4",
+    "name": "Charlie",
+    "type": "Dog",
+    "age": 4,
+    "price": 150.0,
+    "imageUrl": "https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg"
+  },
+  {
+    "id": "5",
+    "name": "Lucy",
+    "type": "Cat",
+    "age": 2,
+    "price": 90.0,
+    "imageUrl": "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg"
+  },
+  {
+    "id": "6",
+    "name": "Daisy",
+    "type": "Dog",
+    "age": 5,
+    "price": 110.0,
+    "imageUrl": "https://images.pexels.com/photos/4588045/pexels-photo-4588045.jpeg"
+  },
+  {
+    "id": "7",
+    "name": "Milo",
+    "type": "Cat",
+    "age": 3,
+    "price": 70.0,
+    "imageUrl": "https://images.pexels.com/photos/416160/pexels-photo-416160.jpeg"
+  },
+  {
+    "id": "8",
+    "name": "Rocky",
+    "type": "Dog",
+    "age": 2,
+    "price": 130.0,
+    "imageUrl": "https://images.pexels.com/photos/4587996/pexels-photo-4587996.jpeg"
+  },
+  {
+    "id": "9",
+    "name": "Nala",
+    "type": "Cat",
+    "age": 4,
+    "price": 85.0,
+    "imageUrl": "https://images.pexels.com/photos/45243/kitty-cat-kitten-pet-45243.jpeg"
+  },
+  {
+    "id": "10",
+    "name": "Cooper",
+    "type": "Dog",
+    "age": 1,
+    "price": 140.0,
+    "imageUrl": "https://images.pexels.com/photos/4587977/pexels-photo-4587977.jpeg"
+  },
+  {
+    "id": "11",
+    "name": "Simba",
+    "type": "Cat",
+    "age": 2,
+    "price": 95.0,
+    "imageUrl": "https://images.pexels.com/photos/45246/kitty-cat-kitten-pet-45246.jpeg"
+  },
+  {
+    "id": "12",
+    "name": "Bailey",
+    "type": "Dog",
+    "age": 3,
+    "price": 125.0,
+    "imageUrl": "https://images.pexels.com/photos/4588011/pexels-photo-4588011.jpeg"
+  }
+] 
