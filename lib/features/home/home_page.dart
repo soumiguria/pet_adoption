@@ -140,7 +140,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       final response = await http
           .get(
             Uri.parse(
-              'http://192.168.29.73:3000/pets?page=$page&limit=$_pageSize',
+              'https://pet-adoption-x6hg.onrender.com/pets?page=$page&limit=$_pageSize',
             ),
             headers: {'Accept': 'application/json'},
           )

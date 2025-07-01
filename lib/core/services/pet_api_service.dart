@@ -4,7 +4,9 @@ import '../models/pet.dart';
 
 class PetApiService {
   Future<List<Pet>> fetchPets() async {
-    final response = await http.get(Uri.parse('http://localhost:3000/pets'));
+    final response = await http.get(
+      Uri.parse('https://pet-adoption-x6hg.onrender.com/pets'),
+    );
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Pet.fromJson(json)).toList();
