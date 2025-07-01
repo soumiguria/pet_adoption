@@ -374,30 +374,30 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_useFallback)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.amber[100],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.warning_amber_rounded,
-                              color: Colors.amber[800],
-                            ),
-                            const SizedBox(width: 8.0),
-                            const Text('Using fallback pet data'),
-                          ],
-                        ),
-                      ),
-                    ),
+                  // if (_useFallback)
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 16.0,
+                  //     vertical: 8.0,
+                  //   ),
+                  // child: Container(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.amber[100],
+                  //     borderRadius: BorderRadius.circular(8.0),
+                  //   ),
+                  // child: Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.warning_amber_rounded,
+                  //       color: Colors.amber[800],
+                  //     ),
+                  //     const SizedBox(width: 8.0),
+                  //     const Text('Using fallback pet data'),
+                  //   ],
+                  // ),
+                  // ),
+                  // ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isWeb ? 24 : 16,
