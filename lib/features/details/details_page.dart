@@ -7,6 +7,7 @@ import 'bloc/details_bloc.dart';
 import 'bloc/details_event.dart';
 import 'bloc/details_state.dart';
 import 'widgets/pet_image_viewer.dart';
+import '../../core/notifiers/adopted_pets_notifier.dart';
 
 class DetailsPage extends StatelessWidget {
   final Pet pet;
@@ -71,6 +72,10 @@ class _DetailsViewState extends State<DetailsView> {
       listener: (context, state) {
         if (state is DetailsAdopted) {
           _confettiController.play();
+          adoptedPetsNotifier.value = {
+            ...adoptedPetsNotifier.value,
+            state.pet.id,
+          };
           _showAdoptedDialog(state.pet.name);
         }
       },
