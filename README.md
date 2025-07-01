@@ -64,5 +64,5 @@ Make sure your backend has CORS enabled (`app.use(cors())` in Express).
 
 You can download and install the latest build of the app using the link below:
 
-👉 [Download Pet Adoption App APK](https://drive.google.com/uc?export=download&id=1WQlTl_y-zr3AY8ccneWhf4Q34nwFA1Nm)
+👉 [Download Pet Adoption App APK](https://drive.google.com/file/d/1Pu0jncG9CMyoMETMHD9z6WFLWNLR3_I5/view?usp=sharing)
 
