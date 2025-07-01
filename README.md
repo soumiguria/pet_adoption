@@ -58,17 +58,7 @@ Make sure your backend has CORS enabled (`app.use(cors())` in Express).
 
 ### 📷 Sample UI
 
-Each pet card shows:
-
-https://drive.google.com/file/d/18nHqAoPDn9M1cWrfTdulbK_MEo2bKC2t/view?usp=sharing
-https://drive.google.com/file/d/1mHaaedOgun5rP2iu8HWjbrIp1x4bbHnC/view?usp=sharing
-https://drive.google.com/file/d/1Q6MK_td0pCdDhSJglzQGn4eUgi4UpIOe/view?usp=sharing
-https://drive.google.com/file/d/1Cfc8lIHgRNX3y6hjULcDScrNNLaCUgEw/view?usp=sharing
-https://drive.google.com/file/d/1JeN88axxSmTFMLii2oFBM4CAR2PuHBMk/view?usp=sharing
-https://drive.google.com/file/d/1F2rTjmikkdS897M39N8O7JiqWjB7Szzo/view?usp=sharing
-https://drive.google.com/file/d/14eW_tHFKzX2Sba0M47Op5Yj_fZ62aOKm/view?usp=sharing
+<p float="left"> <img src="https://drive.google.com/uc?export=view&id=18nHqAoPDn9M1cWrfTdulbK_MEo2bKC2t" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1mHaaedOgun5rP2iu8HWjbrIp1x4bbHnC" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1Q6MK_td0pCdDhSJglzQGn4eUgi4UpIOe" width="250" /> </p> <p float="left"> <img src="https://drive.google.com/uc?export=view&id=1Cfc8lIHgRNX3y6hjULcDScrNNLaCUgEw" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1JeN88axxSmTFMLii2oFBM4CAR2PuHBMk" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1F2rTjmikkdS897M39N8O7JiqWjB7Szzo" width="250" /> <img src="https://drive.google.com/uc?export=view&id=14eW_tHFKzX2Sba0M47Op5Yj_fZ62aOKm" width="250" /> </p>
 
 ```
 
-
-Let me know if you want to add [dark/light theme toggle](f), [adoption request feature](f), or [local storage with Hive/Sqflite](f).
