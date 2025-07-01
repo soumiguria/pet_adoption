@@ -60,5 +60,9 @@ Make sure your backend has CORS enabled (`app.use(cors())` in Express).
 
 <p float="left"> <img src="https://drive.google.com/uc?export=view&id=18nHqAoPDn9M1cWrfTdulbK_MEo2bKC2t" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1mHaaedOgun5rP2iu8HWjbrIp1x4bbHnC" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1Q6MK_td0pCdDhSJglzQGn4eUgi4UpIOe" width="250" /> </p> <p float="left"> <img src="https://drive.google.com/uc?export=view&id=1Cfc8lIHgRNX3y6hjULcDScrNNLaCUgEw" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1JeN88axxSmTFMLii2oFBM4CAR2PuHBMk" width="250" /> <img src="https://drive.google.com/uc?export=view&id=1F2rTjmikkdS897M39N8O7JiqWjB7Szzo" width="250" /> <img src="https://drive.google.com/uc?export=view&id=14eW_tHFKzX2Sba0M47Op5Yj_fZ62aOKm" width="250" /> </p>
 
-```
+### 📦 Download APK
+
+You can download and install the latest build of the app using the link below:
+
+👉 [Download Pet Adoption App APK](https://drive.google.com/uc?export=download&id=1WQlTl_y-zr3AY8ccneWhf4Q34nwFA1Nm)
 
