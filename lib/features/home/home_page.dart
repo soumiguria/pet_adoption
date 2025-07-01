@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import '../../core/services/pet_api_service.dart';
 import '../../core/services/local_storage_service.dart';
 import '../../core/models/pet.dart';
@@ -11,6 +14,9 @@ import 'widgets/search_bar.dart';
 import 'widgets/banner_slider.dart';
 import '../../core/notifiers/adopted_pets_notifier.dart';
 import '../../core/notifiers/theme_mode_notifier.dart';
+import 'dart:io'; // For SocketException
+import 'dart:convert'; // For json.decode
+import 'dart:async';
 
 final List<Pet> fallbackPets = [
   Pet(
@@ -75,8 +81,14 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   final LocalStorageService _localStorageService = LocalStorageService();
   List<String> favoriteIds = [];
   final ScrollController _scrollController = ScrollController();
-  int _currentMax = 12;
-  bool _isLoadingMore = false;
+  // Pagination variables
+  int _currentPage = 1;
+  bool _hasMore = true;
+  bool _isPageLoading = false;
+  final int _pageSize = 12;
+  List<Pet> _pets = [];
+  bool _isLoading = true;
+  bool _useFallback = false;
 
   // Animation controllers for navigation buttons
   late AnimationController _historyButtonController;
@@ -88,6 +100,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadAdoptedAndFavorites();
+    _fetchPets(reset: true);
     _scrollController.addListener(_onScroll);
 
     // Initialize animation controllers
@@ -115,6 +128,91 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _fetchPets({bool reset = false}) async {
+    if (_isPageLoading) return;
+    setState(() {
+      _isPageLoading = true;
+      if (reset) _isLoading = true;
+    });
+
+    try {
+      final page = reset ? 1 : _currentPage;
+      final response = await http
+          .get(
+            Uri.parse(
+              'http://192.168.29.73:3000/pets?page=$page&limit=$_pageSize',
+            ),
+            headers: {'Accept': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        debugPrint('API Response: $responseBody');
+
+        List<dynamic> petsList = [];
+        int totalCount = 0;
+        if (responseBody is List) {
+          petsList = responseBody;
+          totalCount = petsList.length;
+        } else if (responseBody is Map) {
+          if (responseBody.containsKey('pets')) {
+            petsList = responseBody['pets'] is List ? responseBody['pets'] : [];
+          }
+          if (responseBody.containsKey('total')) {
+            totalCount =
+                responseBody['total'] is int ? responseBody['total'] : 0;
+          } else {
+            totalCount = petsList.length;
+          }
+        }
+
+        final List<Pet> loadedPets = [];
+        for (var item in petsList) {
+          try {
+            if (item is Map<String, dynamic>) {
+              loadedPets.add(Pet.fromJson(item));
+            }
+          } catch (e, stackTrace) {
+            debugPrint('Error parsing pet: $e');
+            debugPrint('Stack trace: $stackTrace');
+            debugPrint('Problematic item: $item');
+          }
+        }
+
+        setState(() {
+          if (reset) {
+            _pets = loadedPets;
+            _currentPage = 2;
+          } else {
+            _pets.addAll(loadedPets);
+            _currentPage += 1;
+          }
+          _useFallback = _pets.isEmpty;
+          _isLoading = false;
+          _hasMore = loadedPets.length == _pageSize;
+          _isPageLoading = false;
+        });
+      } else {
+        throw Exception(
+          'API request failed with status ${response.statusCode}',
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching pets: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() {
+        if (reset) {
+          _pets = fallbackPets;
+          _useFallback = true;
+          _isLoading = false;
+        }
+        _hasMore = false;
+        _isPageLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -124,18 +222,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    if (!_isLoadingMore &&
+    if (_hasMore &&
+        !_isPageLoading &&
+        !_isLoading &&
         _scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 200) {
-      setState(() {
-        _isLoadingMore = true;
-        _currentMax += 10;
-      });
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          _isLoadingMore = false;
-        });
-      });
+      _fetchPets();
     }
   }
 
@@ -182,8 +274,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   }
 
   Future<void> _handleRefresh() async {
+    await _fetchPets(reset: true);
     await _loadAdoptedAndFavorites();
-    setState(() {}); // Force rebuild after refresh
+    setState(() {
+      _currentPage = 2;
+      _hasMore = true;
+    });
   }
 
   void _toggleThemeMode() {
@@ -278,6 +374,30 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_useFallback)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.amber[100],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.amber[800],
+                            ),
+                            const SizedBox(width: 8.0),
+                            const Text('Using fallback pet data'),
+                          ],
+                        ),
+                      ),
+                    ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isWeb ? 24 : 16,
@@ -300,7 +420,9 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                       ),
                       child: PetSearchBar(
                         onChanged: (query) {
-                          setState(() => searchQuery = query);
+                          setState(() {
+                            searchQuery = query;
+                          });
                         },
                       ),
                     ),
@@ -331,129 +453,153 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                     child: ValueListenableBuilder<Set<String>>(
                       valueListenable: adoptedPetsNotifier,
                       builder: (context, adoptedIds, _) {
-                        return BlocBuilder<HomeBloc, HomeState>(
-                          builder: (context, state) {
-                            List<Pet> pets = [];
-                            if (state is HomeLoaded) {
-                              pets = state.filteredPets;
-                            } else if (state is HomeError) {
-                              pets = fallbackPets;
-                            }
-                            final filtered =
-                                pets.where((pet) {
-                                  final q = searchQuery.toLowerCase();
-                                  return pet.name.toLowerCase().contains(q) ||
-                                      pet.type.toLowerCase().contains(q) ||
-                                      pet.age.toString().contains(q);
-                                }).toList();
-                            final displayPets = filtered.take(12).toList();
-                            if (state is HomeLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            if (filtered.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.pets,
-                                      size: 120,
-                                      color: theme.colorScheme.secondary,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'No pets found! Try another search.',
-                                      style: theme.textTheme.titleMedium
-                                          ?.copyWith(color: Colors.deepPurple),
-                                    ),
-                                  ],
+                        if (_isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        final filtered =
+                            _pets.where((pet) {
+                              final q = searchQuery.toLowerCase();
+                              return pet.name.toLowerCase().contains(q) ||
+                                  pet.type.toLowerCase().contains(q) ||
+                                  pet.age.toString().contains(q);
+                            }).toList();
+
+                        final displayPets = filtered;
+                        final hasMore = _hasMore;
+
+                        if (filtered.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.pets,
+                                  size: 120,
+                                  color: theme.colorScheme.secondary,
                                 ),
-                              );
-                            }
-                            return RefreshIndicator(
-                              onRefresh: _handleRefresh,
-                              child:
-                                  gridColumns > 1
-                                      ? GridView.builder(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 8,
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No pets found! Try another search.',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return RefreshIndicator(
+                          onRefresh: _handleRefresh,
+                          child:
+                              gridColumns > 1
+                                  ? GridView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 8,
+                                    ),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3,
+                                          mainAxisSpacing: 24,
+                                          crossAxisSpacing: 24,
+                                          childAspectRatio: 0.95,
                                         ),
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 3,
-                                              mainAxisSpacing: 24,
-                                              crossAxisSpacing: 24,
-                                              childAspectRatio: 0.95,
+                                    itemCount:
+                                        hasMore
+                                            ? displayPets.length + 1
+                                            : displayPets.length,
+                                    itemBuilder: (context, index) {
+                                      if (index >= displayPets.length) {
+                                        if (_isPageLoading) {
+                                          return const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(16.0),
+                                              child:
+                                                  CircularProgressIndicator(),
                                             ),
-                                        itemCount: displayPets.length,
-                                        itemBuilder: (context, index) {
-                                          final pet = displayPets[index];
-                                          final isAdopted = adoptedIds.contains(
-                                            pet.id,
                                           );
-                                          final isFavorite = favoriteIds
-                                              .contains(pet.id);
-                                          return _WebPetCard(
-                                            pet: pet,
-                                            isAdopted: isAdopted,
-                                            isFavorite: isFavorite,
-                                            onTap: () async {
-                                              final result =
-                                                  await Navigator.pushNamed(
-                                                    context,
-                                                    '/details',
-                                                    arguments: pet,
-                                                  );
-                                              if (result == true) {
-                                                await _loadAdoptedAndFavorites();
-                                                setState(
-                                                  () {},
-                                                ); // Immediate update
-                                              }
-                                            },
-                                            onFavorite: () => _onFavorite(pet),
-                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }
+                                      final pet = displayPets[index];
+                                      final isAdopted = adoptedIds.contains(
+                                        pet.id,
+                                      );
+                                      final isFavorite = favoriteIds.contains(
+                                        pet.id,
+                                      );
+                                      return _WebPetCard(
+                                        pet: pet,
+                                        isAdopted: isAdopted,
+                                        isFavorite: isFavorite,
+                                        onTap: () async {
+                                          final result =
+                                              await Navigator.pushNamed(
+                                                context,
+                                                '/details',
+                                                arguments: pet,
+                                              );
+                                          if (result == true) {
+                                            await _loadAdoptedAndFavorites();
+                                            setState(() {}); // Immediate update
+                                          }
                                         },
-                                      )
-                                      : ListView.builder(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 24,
-                                        ),
-                                        itemCount: displayPets.length,
-                                        itemBuilder: (context, index) {
-                                          final pet = displayPets[index];
-                                          final isAdopted = adoptedIds.contains(
-                                            pet.id,
+                                        onFavorite: () => _onFavorite(pet),
+                                      );
+                                    },
+                                  )
+                                  : ListView.builder(
+                                    padding: const EdgeInsets.only(bottom: 24),
+                                    itemCount:
+                                        hasMore
+                                            ? displayPets.length + 1
+                                            : displayPets.length,
+                                    itemBuilder: (context, index) {
+                                      if (index >= displayPets.length) {
+                                        if (_isPageLoading) {
+                                          return const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.all(16.0),
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
                                           );
-                                          final isFavorite = favoriteIds
-                                              .contains(pet.id);
-                                          return PetListItem(
-                                            pet: pet,
-                                            isAdopted: isAdopted,
-                                            isFavorite: isFavorite,
-                                            onTap: () async {
-                                              final result =
-                                                  await Navigator.pushNamed(
-                                                    context,
-                                                    '/details',
-                                                    arguments: pet,
-                                                  );
-                                              if (result == true) {
-                                                await _loadAdoptedAndFavorites();
-                                                setState(
-                                                  () {},
-                                                ); // Immediate update
-                                              }
-                                            },
-                                            onFavorite: () => _onFavorite(pet),
-                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      }
+                                      final pet = displayPets[index];
+                                      final isAdopted = adoptedIds.contains(
+                                        pet.id,
+                                      );
+                                      final isFavorite = favoriteIds.contains(
+                                        pet.id,
+                                      );
+                                      return PetListItem(
+                                        pet: pet,
+                                        isAdopted: isAdopted,
+                                        isFavorite: isFavorite,
+                                        onTap: () async {
+                                          final result =
+                                              await Navigator.pushNamed(
+                                                context,
+                                                '/details',
+                                                arguments: pet,
+                                              );
+                                          if (result == true) {
+                                            await _loadAdoptedAndFavorites();
+                                            setState(() {}); // Immediate update
+                                          }
                                         },
-                                      ),
-                            );
-                          },
+                                        onFavorite: () => _onFavorite(pet),
+                                      );
+                                    },
+                                  ),
                         );
                       },
                     ),

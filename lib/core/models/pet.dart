@@ -42,17 +42,17 @@ class Pet {
   }
 
   factory Pet.fromJson(Map<String, dynamic> json) {
-    return Pet(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      type: json['type'] as String,
-      age: json['age'] as int,
-      price: (json['price'] as num).toDouble(),
-      imageUrl: json['imageUrl'] as String,
-      isAdopted: json['isAdopted'] ?? false,
-      isFavorite: json['isFavorite'] ?? false,
-    );
-  }
+  return Pet(
+    id: json['id']?.toString() ?? 'unknown_id', // Handle any type of ID
+    name: json['name']?.toString() ?? 'Unnamed Pet', // Handle null name
+    type: json['type']?.toString() ?? 'Unknown', // Handle null type
+    age: (json['age'] as num?)?.toInt() ?? 0, // Handle null or non-int age
+    price: (json['price'] as num?)?.toDouble() ?? 0.0, // Handle null price
+    imageUrl: json['imageUrl']?.toString() ?? '', // Handle null image
+    isAdopted: json['isAdopted'] as bool? ?? false,
+    isFavorite: json['isFavorite'] as bool? ?? false,
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
